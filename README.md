@@ -11,42 +11,69 @@
 El juego destaca por su mecánica innovadora que requiere de los jugadores buena puntería y estrategia para superar barreras y las intervenciones dinámicas del portero. A medida que avanzan, los niveles incrementan en dificultad, introduciendo desafíos que requieren reflexión rápida y reacciones precisas. 
 
 ## Desarrollo
+### Herramientas y Tecnologías Utilizadas
+- **UNITY HUB:** versión 3.8.0
+- **Lenguaje:** C#
 
-El desarrollo de **Gol de Oro** se llevó a cabo siguiendo una metodología de desarrollo ágil e iterativa, adecuada para adaptarse a los constantes cambios y requerimientos del diseño del juego. Las fases del desarrollo incluyen:
+### Implementación de la Línea de Trayectoria
 
-1. **Investigación y Planificación**:
-   - Se realizó una investigación exhaustiva para definir los objetivos del juego y las mecánicas principales.
-   
-2. **Prototipado**:
-   - Se crearon prototipos iniciales utilizando un canvas básico en Unity para validar la funcionalidad de las mecánicas del juego.
-   
-3. **Desarrollo Iterativo**:
-   - Cada componente del juego, desde la lógica hasta la interfaz de usuario, fue desarrollado y refinado a través de ciclos iterativos.
+La línea de trayectoria en **Gol de Oro** se implementa utilizando una ecuación matemática que simula la física del movimiento de un proyectil. Esto permite a los jugadores visualizar la trayectoria del balón antes de realizar un tiro, añadiendo una capa de estrategia y precisión al juego.
 
-4. **Integración y Pruebas Continuas**:
-   - Todos los elementos del juego fueron integrados y probados continuamente para asegurar su correcto funcionamiento.
-   
-5. **Evaluación y Retroalimentación**:
-   - El juego fue evaluado regularmente en sesiones de clase, recolectando retroalimentación crítica para identificar áreas de mejora.
+#### Ecuación de la Trayectoria
 
-6. **Refinamiento y Optimización**:
-   - En la fase final del desarrollo, se realizaron refinamientos adicionales y optimización del juego.
+La trayectoria del balón se calcula en función de la velocidad inicial y la gravedad. La posición del balón en cada punto de la trayectoria se determina utilizando las siguientes ecuaciones del movimiento de proyectiles:
 
-## Operación
+- **Velocidad Inicial**: Se calcula dividiendo el vector de fuerza aplicado al balón por la masa del `Rigidbody` y multiplicándolo por el tiempo fijo de actualización (`Time.fixedDeltaTime`).
+- **Duración del Vuelo**: Se determina utilizando la fórmula `(2 * velocidad inicial en y) / gravedad`.
+- **Cálculo de la Trayectoria**: Se utiliza la fórmula de movimiento de proyectiles para calcular la posición del balón en cada segmento de tiempo.
 
-Para operar **Gol de Oro**, sigue estos pasos:
+```csharp
+for (int i = 0; i < lineSegmentCount; i++)
+{
+    float stepTimePassed = stepTime * i;
 
-### Requisitos Previos
+    // Ecuaciones del movimiento de proyectiles
+    Vector3 movementVector = new Vector3(
+        velocity.x * stepTimePassed,
+        velocity.y * stepTimePassed - 0.5f * Physics.gravity.y * stepTimePassed * stepTimePassed,
+        velocity.z * stepTimePassed
+    );
 
-- **Unity**: Necesitarás tener instalado Unity para poder compilar y ejecutar el juego.
-- **Herramientas de Modelado 3D**: Blender u otra herramienta similar, si deseas modificar los modelos 3D.
+    Vector3 newPosition = -movementVector + startingPoint;
 
+    linePoints.Add(newPosition);
+}
+```
 
+### Implementación de la Barrera
 
+Cuando la pelota golpea a los jugadores de la barrera, se aplica una penalización en puntos al jugador. Esta lógica se implementa utilizando detección de colisiones y un prefab de texto flotante para mostrar visualmente la penalización.
 
+**Detección de Colisiones**: Se utiliza el método `OnCollisionEnter` para detectar cuando la pelota golpea a los jugadores de la barrera.
+- **Penalización de Puntos**: Se descuentan puntos del puntaje del jugador llamando a `ScoreManager.Instance.AddScore` con un valor negativo.
+- **Texto Flotante**: Se instancia un prefab de texto flotante en la posición de la colisión para mostrar visualmente la penalización. El texto se destruye automáticamente después de un breve periodo.
 
+```csharp
+private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ball")) 
+        {
+            // Muestra el texto flotante
+            ShowFloatingText();
+            // Llama al método para descontar puntos
+            ScoreManager.Instance.AddScore(-puntosPenalizacion);
+        }
+    }
+```
 
-<br>
+## 🔭 Vista - Ejecución
+
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=lZy1SHYOSY0">
+    <img src="https://img.youtube.com/vi/lZy1SHYOSY0/0.jpg" alt="Video de PowerFit" width="600">
+  </a>
+</p>
+
 <div align="center">
 <h3 align="center">Let's connect 😋</h3>
 </div>
